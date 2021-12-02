@@ -1,0 +1,5 @@
+*
+!*.hs
+!*.input
+!readme.md
+!.gitignore
