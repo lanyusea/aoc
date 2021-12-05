@@ -2,6 +2,7 @@ import System.IO
 import Control.Monad
 import Debug.Trace
 import Data.List
+import Data.Maybe
 
 c :: [String] -> [Int]
 c = map read 
@@ -35,12 +36,35 @@ f n  = gammaRate * epsilonRate where
     gammaRate = convert $ map mostFrequent orderedNum
     epsilonRate = convert $ map leastFrequent orderedNum
 
+---
 
- 
+rm x v p = if x!!p == v then Nothing else Just x
+
+rmByIndex :: [[Int]] -> Int -> Int ->[[Int]]
+rmByIndex n v p = mapMaybe (\x -> rm x v p) n 
+
+findMcbRef n = map mostFrequent $ transpose n
+
+findLcbRef n = map leastFrequent $ transpose n
+
+rmLoopByMcb n index | length n == 1 = n
+  | otherwise = rmLoopByMcb (rmByIndex n (ref!!index) index) (index + 1) where ref = findMcbRef n
+
+rmLoopByLcb n index | length n == 1 = n
+  | otherwise = rmLoopByLcb (rmByIndex n (ref!!index) index) (index + 1) where ref = findLcbRef n
+
+fn n = o2Rate * co2Rate where
+    orderedNum = map makeup $ map digits $ c n
+    o2Rate = convert $ head $ rmLoopByMcb orderedNum 0
+    co2Rate = convert $ head $ rmLoopByLcb orderedNum 0
+
+
 main = do
     handle <- openFile "./day3.input" ReadMode
     contents <- hGetContents handle
+
     print $ f $ words contents
+    print $ fn $ words contents
 
     hClose handle
 
